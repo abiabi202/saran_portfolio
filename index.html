@@ -1,0 +1,937 @@
+
+<html lang="en" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Saran P - Full Stack Developer Portfolio</title>
+
+    <!-- CDNs -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.128.0/build/three.module.js"
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Custom Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap"
+        rel="stylesheet">
+
+    <!-- Custom Styles & Tailwind Config -->
+    <style>
+        :root {
+            --primary: #00d2ff;
+            --secondary: #3a7bd5;
+            --accent: #00ffaa;
+            --background: #0a0a0a;
+        }
+
+        body {
+            background-color: var(--background);
+            color: white;
+            font-family: 'Fira Code', monospace;
+            overflow-x: hidden;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            font-family: 'Rajdhani', sans-serif;
+        }
+
+        .gradient-text {
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .glassmorphic {
+            background: rgba(10, 10, 10, 0.5);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .neon-glow {
+            box-shadow: 0 0 5px var(--accent), 0 0 10px var(--accent), 0 0 20px var(--accent);
+        }
+
+        .neon-border {
+            border: 2px solid var(--primary);
+            box-shadow: 0 0 10px var(--primary), 0 0 20px var(--primary);
+        }
+
+        .custom-cursor {
+            position: fixed;
+            left: 0;
+            top: 0;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        #cursor-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent);
+            border-radius: 50%;
+            transition: transform 0.2s ease-out;
+        }
+
+        #cursor-ring {
+            width: 30px;
+            height: 30px;
+            border: 2px solid var(--primary);
+            border-radius: 50%;
+            position: absolute;
+            top: -11px;
+            left: -11px;
+            mix-blend-mode: screen;
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--background);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent);
+        }
+
+        .hamburger-line {
+            transition: all 0.3s ease-in-out;
+        }
+
+        .menu-open .line-1 {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+
+        .menu-open .line-2 {
+            opacity: 0;
+        }
+
+        .menu-open .line-3 {
+            transform: rotate(-45deg) translate(7px, -6px);
+        }
+
+        /* Notification Styles */
+        .notification {
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            z-index: 9999;
+            min-width: 300px;
+            padding: 20px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            transform: translateX(400px);
+            transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.success {
+            background: rgba(0, 200, 83, 0.9);
+            border-left: 5px solid #00ff88;
+        }
+
+        .notification.error {
+            background: rgba(244, 67, 54, 0.9);
+            border-left: 5px solid #ff5252;
+        }
+
+        .notification-content {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .notification-icon {
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .notification-message {
+            flex-grow: 1;
+        }
+
+        .notification-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.3s;
+        }
+
+        .notification-close:hover {
+            opacity: 1;
+        }
+
+        .notification-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 16px;
+        }
+
+        .notification-text {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+
+<body class="antialiased">
+
+    <!-- Notification Container -->
+    <div id="notification-container"></div>
+
+    <!-- 3D Matrix Background -->
+    <div id="matrix-bg" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;"></div>
+
+    <!-- Custom Cursor -->
+    <!-- <div class="custom-cursor" id="cursor">
+        <div id="cursor-dot"></div>
+        <div id="cursor-ring"></div>
+    </div> -->
+
+    <!-- Navigation Bar -->
+    <header id="navbar" class="fixed top-0 left-0 w-full z-50 transition-all duration-300 glassmorphic">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="#home" class="text-3xl font-bold gradient-text">Saran P</a>
+            <div class="hidden md:flex space-x-8 items-center">
+                <a href="#home" class="nav-link text-white hover:text-cyan-400 relative">Home <span
+                        class="underline-anim"></span></a>
+                <a href="#about" class="nav-link text-white hover:text-cyan-400 relative">About <span
+                        class="underline-anim"></span></a>
+                <a href="#skills" class="nav-link text-white hover:text-cyan-400 relative">Skills <span
+                        class="underline-anim"></span></a>
+                <a href="#projects" class="nav-link text-white hover:text-cyan-400 relative">Projects <span
+                        class="underline-anim"></span></a>
+                <a href="#experience" class="nav-link text-white hover:text-cyan-400 relative">Education <span
+                        class="underline-anim"></span></a>
+                <a href="#contact" class="nav-link text-white hover:text-cyan-400 relative">Contact <span
+                        class="underline-anim"></span></a>
+            </div>
+            <button id="hamburger-btn" class="md:hidden z-50">
+                <div class="w-8 h-8 flex flex-col justify-around">
+                    <span class="hamburger-line line-1 block w-full h-0.5 bg-white"></span>
+                    <span class="hamburger-line line-2 block w-full h-0.5 bg-white"></span>
+                    <span class="hamburger-line line-3 block w-full h-0.5 bg-white"></span>
+                </div>
+            </button>
+        </nav>
+    </header>
+
+    <!-- Mobile Menu -->
+    <div id="mobile-menu"
+        class="fixed top-0 left-0 w-full h-full glassmorphic z-40 transform -translate-x-full transition-transform duration-500 ease-in-out">
+        <div class="flex flex-col items-center justify-center h-full space-y-8">
+            <a href="#home" class="mobile-nav-link text-3xl text-white">Home</a>
+            <a href="#about" class="mobile-nav-link text-3xl text-white">About</a>
+            <a href="#skills" class="mobile-nav-link text-3xl text-white">Skills</a>
+            <a href="#projects" class="mobile-nav-link text-3xl text-white">Projects</a>
+            <a href="#experience" class="mobile-nav-link text-3xl text-white">Education</a>
+            <a href="#contact" class="mobile-nav-link text-3xl text-white">Contact</a>
+        </div>
+    </div>
+
+
+    <main>
+        <!-- Hero Section -->
+        <section id="home" class="h-screen flex items-center justify-center relative overflow-hidden">
+            <div
+                class="hero-content text-center glassmorphic p-8 md:p-12 rounded-lg border border-cyan-500/20 max-w-4xl mx-auto">
+                <div class="terminal-box text-left font-mono text-sm md:text-lg">
+                    <p class="type-text">> Hello_World()</p>
+                    <h1 class="text-4xl md:text-6xl font-bold my-4">I'm <span class="gradient-text">Saran P</span>, a
+                        Full Stack Developer</h1>
+                    <p class="type-text">const specialties = ["SQL", "Java", "React", "Node.js"]</p>
+                </div>
+                <div class="mt-8 flex justify-center gap-4">
+                    <a href="#projects"
+                        class="btn outline-btn px-6 py-3 rounded-md text-lg font-semibold border-2 border-accent text-accent hover:bg-accent hover:text-black transition-all">View
+                        Projects</a>
+                    <!-- Dropdown Wrapper -->
+                    <div class="relative group z-10">
+                        <!-- Main Button -->
+                        <button
+                            class="btn gradient-btn px-6 py-3 rounded-md text-lg font-semibold bg-gradient-to-r from-cyan-500 to-blue-500 hover:opacity-90 transition-opacity">
+                            Resume
+                        </button>
+
+                        <!-- Dropdown -->
+                        <div
+                            class="absolute top-full left-0 mt-1 w-40 bg-white rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                            <a href="SARAN P (1).pdf" target="_blank"
+                                class="block px-4 py-2 text-gray-800 hover:bg-gray-200 border-b border-gray-300">
+                                View Resume
+                            </a>
+                            <a href="SARAN P (1).pdf" download class="block px-4 py-2 text-gray-800 hover:bg-gray-200">
+                                Download Resume
+                            </a>
+                        </div>
+                    </div>
+                    <a href="#contact"
+                        class="btn outline-btn px-6 py-3 rounded-md text-lg font-semibold border-2 border-accent text-accent hover:bg-accent hover:text-black transition-all">Contact
+                        Me</a>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section id="about" class="py-20">
+            <div class="container mx-auto px-6">
+                <h2 class="text-4xl font-bold text-center mb-12 gradient-text section-title">About Me</h2>
+                <div class="grid md:grid-cols-2 gap-12 items-center about-content">
+                    <div class="profile-image-container relative w-64 h-64 mx-auto md:w-80 md:h-80">
+                        <img src="https://t3.ftcdn.net/jpg/06/01/17/18/360_F_601171867_X85WpWCcMzNsoMWtMxiZQspKzaOwCyuK.jpg"
+                            alt="Profile" class="rounded-full w-full h-full object-cover z-10 relative">
+                        <div class="absolute inset-0 border-4 border-cyan-400 rounded-full animate-pulse"></div>
+                        <div
+                            class="absolute inset-[-10px] border-2 border-blue-500 rounded-full animate-pulse delay-500">
+                        </div>
+                    </div>
+                    <div class="about-text text-center md:text-left">
+                        <p class="text-lg mb-4">
+                            A highly motivated person with self learning ability and Socially adaptable. Possess
+                            Master's degree in M.Sc Information Technology. My objective is to secure a responsible
+                            career
+                            opportunity to fully utilize my skills and abilities in IT industry, while making
+                            significant
+                            contribution to the success of your company.
+                        </p>
+
+                        <div class="flex justify-center md:justify-start space-x-6 text-2xl">
+                            <a href="mailto:saranponnusamy03@gmail.com"
+                                class="social-icon hover:text-red-400 transition-colors">
+                                <i class="fas fa-envelope"></i>
+                            </a>
+                            <a href="https://github.com/SaranKavin"
+                                class="social-icon hover:text-cyan-400 transition-colors"><i
+                                    class="fab fa-github"></i></a>
+                            <a href="https://www.linkedin.com/in/saran-p-092311287/"
+                                class="social-icon hover:text-cyan-400 transition-colors"><i
+                                    class="fab fa-linkedin"></i></a>
+                            <a href="https://www.hackerrank.com/profile/saranponnusamy03"
+                                class="social-icon hover:text-green-400 transition-colors">
+                                <i class="fab fa-hackerrank"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Skills Section -->
+        <section id="skills" class="py-20 bg-black/20">
+            <div class="container mx-auto px-6">
+                <h2 class="text-4xl font-bold text-center mb-12 gradient-text section-title">Skills</h2>
+                <div class="skills-grid grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                    <!-- Skills will be injected here by JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Projects Section -->
+        <section id="projects" class="py-20 bg-black/20">
+            <div class="container mx-auto px-6">
+                <h2 class="text-4xl font-bold text-center mb-12 gradient-text section-title">Projects</h2>
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- Project Cards -->
+                    <div class="project-card glassmorphic rounded-lg overflow-hidden">
+                        <div class="relative group">
+                            <img src="/img/nursery.png" alt="Project 1" class="w-full h-48 object-cover">
+                            <div
+                                class="absolute inset-0 bg-gradient-to-r from-cyan-500/50 to-blue-500/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            </div>
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-2xl font-bold mb-2">Nursery Management System</h3>
+                            <p class="text-gray-400 mb-4">Project One</p>
+                            <div class="flex gap-2 mb-4">
+                                <span class="tag">HTML</span><span class="tag">CSS</span><span
+                                    class="tag">JavaScript</span><span class="tag">PHP</span><span
+                                    class="tag">SQL</span>
+                            </div>
+                            <div class="flex gap-4">
+                                <a href="https://github.com/SaranKavin/Nursery-Management-System" class="btn-link">Code
+                                    <i class="fab fa-github"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="project-card glassmorphic rounded-lg overflow-hidden">
+                        <div class="relative group">
+                            <img src="./img/project 2.webp" alt="Project 2" class="w-full h-48 object-cover">
+                            <div
+                                class="absolute inset-0 bg-gradient-to-r from-cyan-500/50 to-blue-500/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            </div>
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-2xl font-bold mb-2">Heart Disease Prediction-System</h3>
+                            <p class="text-gray-400 mb-4">Project Two</p>
+                            <div class="flex gap-2 mb-4">
+                                <span class="tag">Python</span><span class="tag">HTML</span><span class="tag">CSS</span>
+                            </div>
+                            <div class="flex gap-4">
+                                <a href="https://github.com/SaranKavin/Heart-Disease-Prediction-System"
+                                    class="btn-link">Code <i class="fab fa-github"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="project-card glassmorphic rounded-lg overflow-hidden">
+                        <div class="relative group">
+                            <img src="./img/Cafe-Magement" alt="Project 3" class="w-full h-48 object-cover">
+                            <div
+                                class="absolute inset-0 bg-gradient-to-r from-cyan-500/50 to-blue-500/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            </div>
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-2xl font-bold mb-2">Cafe-Magement</h3>
+                            <p class="text-gray-400 mb-4">Project Three</p>
+                            <div class="flex gap-2 mb-4">
+                                <span class="tag">HTML</span><span class="tag">CSS</span><span
+                                    class="tag">Bootstrap</span><span class="tag">JavaScript</span><span
+                                    class="tag">PHP</span><span class="tag">SQL</span>
+                            </div>
+                            <div class="flex gap-4">
+                                <a href="https://github.com/SaranKavin/Cafe-Magement" class="btn-link">Code <i
+                                        class="fab fa-github"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Experience Section -->
+        <section id="experience" class="py-20">
+            <div class="container mx-auto px-6">
+                <h2 class="text-4xl font-bold text-center mb-16 gradient-text section-title">Education</h2>
+                <div class="relative">
+                    <div
+                        class="absolute left-1/2 -translate-x-1/2 h-full w-1 bg-gradient-to-b from-cyan-500 to-blue-500">
+                    </div>
+                    <div class="space-y-12">
+                        <!-- Experience Items -->
+                        <div class="experience-item flex md:justify-end">
+                            <div class="md:w-5/12">
+                                <div class="p-6 glassmorphic rounded-lg">
+                                    <p class="text-accent font-semibold">2024 - 2026</p>
+                                    <h3 class="text-2xl font-bold">M.Sc Information Technology</h3>
+                                    <p class="text-sm my-2 text-gray-400">Pursuing</p>
+                                    <p class="text-gray-300">Sri Krishna Arts and Science College</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="experience-item flex md:justify-start">
+                            <div class="md:w-5/12">
+                                <div class="p-6 glassmorphic rounded-lg">
+                                    <p class="text-accent font-semibold">2024 - 2026</p>
+                                    <h3 class="text-2xl font-bold">B.Sc Computer Science</h3>
+                                    <p class="text-sm my-2 text-gray-400">74%</p>
+                                    <p class="text-gray-300">Sri Ramakrishna Mission Vidyalaya Collage Arts and Science
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="experience-item flex md:justify-end">
+                            <div class="md:w-5/12">
+                                <div class="p-6 glassmorphic rounded-lg">
+                                    <p class="text-accent font-semibold">2019 - 2021</p>
+                                    <h3 class="text-2xl font-bold">HSC</h3>
+                                    <p class="text-sm my-2 text-gray-400">80%</p>
+                                    <p class="text-gray-300">Kearitman Matriculation Higher Secondary School</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="experience-item flex md:justify-start">
+                            <div class="md:w-5/12">
+                                <div class="p-6 glassmorphic rounded-lg">
+                                    <p class="text-accent font-semibold">2018 - 2019</p>
+                                    <h3 class="text-2xl font-bold">SSLC</h3>
+                                    <p class="text-sm my-2 text-gray-400">74%</p>
+                                    <p class="text-gray-300">Jaycee Higher Secondary School</p>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section id="contact" class="py-20">
+            <div class="container mx-auto px-6">
+                <h2 class="text-4xl font-bold text-center mb-12 gradient-text section-title">Get In Touch</h2>
+                <div class="grid md:grid-cols-2 gap-12 contact-content">
+                    <div>
+                        <h3 class="text-3xl font-bold mb-4">Contact Info</h3>
+                        <p class="text-lg mb-8">Have a project in mind or just want to say hi? Feel free to reach out.
+                            I'm always open to discussing new projects and creative ideas.</p>
+                        <div class="space-y-4">
+                            <p><i class="fas fa-envelope mr-3 text-cyan-400"></i> saranponnusamy03@gmail.com</p>
+                            <p><i class="fas fa-map-marker-alt mr-3 text-cyan-400"></i> Coimbatore, Tamil Nadu</p>
+                        </div>
+                    </div>
+                    <form id="contact-form" class="space-y-6">
+                        <input type="text" id="from_name" placeholder="Your Name" required
+                            class="contact-input w-full bg-black/20 p-4 rounded-md border border-gray-700 focus:border-cyan-400 focus:ring-cyan-400 focus:outline-none transition-all">
+
+                        <input type="email" id="from_email" placeholder="Your Email" required
+                            class="contact-input w-full bg-black/20 p-4 rounded-md border border-gray-700 focus:border-cyan-400 focus:ring-cyan-400 focus:outline-none transition-all">
+
+                        <input type="text" id="subject" placeholder="Your Subject" required
+                            class="contact-input w-full bg-black/20 p-4 rounded-md border border-gray-700 focus:border-cyan-400 focus:ring-cyan-400 focus:outline-none transition-all">
+
+                        <textarea id="message" placeholder="Your Message" rows="5" required
+                            class="contact-input w-full bg-black/20 p-4 rounded-md border border-gray-700 focus:border-cyan-400 focus:ring-cyan-400 focus:outline-none transition-all"></textarea>
+
+                        <button type="submit" id="submit-btn"
+                            class="magnetic-btn w-full px-6 py-3 rounded-md text-lg font-semibold bg-gradient-to-r from-cyan-500 to-blue-500 hover:opacity-90 transition-opacity">
+                            <span id="submit-text">Send Message</span>
+                            <div id="submit-loader" class="hidden">
+                                <div class="flex items-center justify-center gap-2">
+                                    <div
+                                        class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin">
+                                    </div>
+                                    <span>Sending...</span>
+                                </div>
+                            </div>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="py-8 bg-black/30 border-t border-gray-800">
+        <div class="container mx-auto px-6 text-center text-gray-400">
+            <a href="#home" class="text-2xl font-bold gradient-text mb-4 inline-block">Saran P</a>
+            <div class="flex justify-center space-x-6 text-xl mb-4">
+                <a href="https://github.com/SaranKavin" class="social-icon hover:text-cyan-400 transition-colors"><i
+                        class="fab fa-github"></i></a>
+                <a href="https://www.linkedin.com/in/saran-p-092311287/"
+                    class="social-icon hover:text-cyan-400 transition-colors"><i class="fab fa-linkedin"></i></a>
+            </div>
+            <p>© 2025 Saran . All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- EmailJS CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+
+    <script type="module">
+        import * as THREE from 'three';
+
+        // Notification System
+        function showNotification(type, title, message, duration = 5000) {
+            const container = document.getElementById('notification-container');
+            const notification = document.createElement('div');
+
+            notification.className = `notification ${type}`;
+            notification.innerHTML = `
+                <div class="notification-content">
+                    <div class="notification-icon">
+                        ${type === 'success' ? '✅' : '❌'}
+                    </div>
+                    <div class="notification-message">
+                        <div class="notification-title">${title}</div>
+                        <div class="notification-text">${message}</div>
+                    </div>
+                    <button class="notification-close">×</button>
+                </div>
+            `;
+
+            container.appendChild(notification);
+
+            // Trigger animation
+            setTimeout(() => {
+                notification.classList.add('show');
+            }, 10);
+
+            // Close button
+            const closeBtn = notification.querySelector('.notification-close');
+            closeBtn.addEventListener('click', () => {
+                hideNotification(notification);
+            });
+
+            // Auto-remove after duration
+            if (duration) {
+                setTimeout(() => {
+                    hideNotification(notification);
+                }, duration);
+            }
+
+            return notification;
+        }
+
+        function hideNotification(notification) {
+            notification.classList.remove('show');
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+            }, 500);
+        }
+
+        // Initialize EmailJS
+        emailjs.init("QoEslUBUZ2Bq4KYnQ");
+
+        // Contact Form Handler
+        document.getElementById("contact-form").addEventListener("submit", function (event) {
+            event.preventDefault();
+
+            const submitBtn = document.getElementById("submit-btn");
+            const submitText = document.getElementById("submit-text");
+            const submitLoader = document.getElementById("submit-loader");
+
+            // Show loading state
+            submitText.classList.add("hidden");
+            submitLoader.classList.remove("hidden");
+            submitBtn.disabled = true;
+
+            // Create the parameters object
+            const templateParams = {
+                name: document.getElementById("from_name").value,
+                email: document.getElementById("from_email").value,
+                subject: document.getElementById("subject").value,
+                message: document.getElementById("message").value
+            };
+
+            // Send email using the parameters object
+            emailjs.send("service_kxvfr0o", "template_khjxl9o", templateParams)
+                .then(function (response) {
+                    // Show success notification
+                    showNotification(
+                        'success',
+                        'Message Sent Successfully!',
+                        'Thank you for your message. I will get back to you soon.',
+                        6000
+                    );
+
+                    // Reset form
+                    document.getElementById("contact-form").reset();
+                })
+                .catch(function (error) {
+                    // Show error notification
+                    showNotification(
+                        'error',
+                        'Failed to Send Message',
+                        'Please try again later or contact me directly at saranponnusamy03@gmail.com',
+                        6000
+                    );
+                })
+                .finally(function () {
+                    // Reset button state
+                    submitText.classList.remove("hidden");
+                    submitLoader.classList.add("hidden");
+                    submitBtn.disabled = false;
+                });
+        });
+
+        // --- Three.js 3D Matrix Background ---
+        let scene, camera, renderer, particles;
+        const container = document.getElementById('matrix-bg');
+
+        function initMatrix() {
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.z = 300;
+
+            renderer = new THREE.WebGLRenderer({ alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            container.appendChild(renderer.domElement);
+
+            const particleCount = 5000;
+            const positions = new Float32Array(particleCount * 3);
+            const colors = new Float32Array(particleCount * 3);
+            const color = new THREE.Color();
+
+            for (let i = 0; i < particleCount; i++) {
+                const i3 = i * 3;
+                positions[i3] = (Math.random() - 0.5) * 1000;
+                positions[i3 + 1] = (Math.random() - 0.5) * 1000;
+                positions[i3 + 2] = (Math.random() - 0.5) * 1000;
+
+                color.setHSL(0.5 + Math.random() * 0.2, 0.7, 0.5);
+                colors[i3] = color.r;
+                colors[i3 + 1] = color.g;
+                colors[i3 + 2] = color.b;
+            }
+
+            const geometry = new THREE.BufferGeometry();
+            geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+            const material = new THREE.PointsMaterial({
+                size: 1.5,
+                vertexColors: true,
+                blending: THREE.AdditiveBlending,
+                transparent: true,
+                opacity: 0.7,
+            });
+
+            particles = new THREE.Points(geometry, material);
+            scene.add(particles);
+
+            window.addEventListener('resize', onWindowResize);
+            document.addEventListener('mousemove', onMouseMove);
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        let mouseX = 0, mouseY = 0;
+        function onMouseMove(event) {
+            mouseX = (event.clientX - window.innerWidth / 2) / 100;
+            mouseY = (event.clientY - window.innerHeight / 2) / 100;
+        }
+
+        function animateMatrix() {
+            requestAnimationFrame(animateMatrix);
+
+            const time = Date.now() * 0.0001;
+            particles.rotation.y = time * 0.2;
+
+            camera.position.x += (mouseX - camera.position.x) * 0.05;
+            camera.position.y += (-mouseY - camera.position.y) * 0.05;
+            camera.lookAt(scene.position);
+
+            renderer.render(scene, camera);
+        }
+
+        initMatrix();
+        animateMatrix();
+
+        // --- GSAP Animations ---
+        gsap.registerPlugin(ScrollTrigger);
+
+        // Custom Cursor
+        const cursor = document.getElementById('cursor');
+        const cursorDot = document.getElementById('cursor-dot');
+        const cursorRing = document.getElementById('cursor-ring');
+
+        gsap.set(cursor, { xPercent: -50, yPercent: -50 });
+        gsap.set(cursorRing, { xPercent: -50, yPercent: -50 });
+
+        window.addEventListener('mousemove', e => {
+            gsap.to(cursorDot, 0.2, { x: e.clientX, y: e.clientY });
+            gsap.to(cursorRing, 0.8, { x: e.clientX, y: e.clientY, ease: "power2.out" });
+        });
+
+        // Hero Section Animation
+        gsap.from(".hero-content", { duration: 1.5, y: 50, opacity: 0, ease: "power3.out", delay: 0.5 });
+        gsap.from(".type-text", { duration: 1, text: "", ease: "none", stagger: 1, delay: 1 });
+        gsap.from(".scroll-down-indicator", { y: -20, repeat: -1, yoyo: true, duration: 1, ease: "power1.inOut" });
+
+        // Section Title Animations
+        gsap.utils.toArray('.section-title').forEach(title => {
+            gsap.from(title, {
+                opacity: 0,
+                y: 50,
+                duration: 1,
+                scrollTrigger: {
+                    trigger: title,
+                    start: 'top 80%',
+                }
+            });
+        });
+
+        // About Section
+        gsap.from(".about-content", {
+            opacity: 0,
+            y: 100,
+            duration: 1,
+            scrollTrigger: {
+                trigger: "#about",
+                start: "top 70%"
+            }
+        });
+
+        // Skills
+        const skillsData = [
+            { icon: 'fab fa-html5', name: 'HTML', level: 98 },
+            { icon: 'fab fa-css3-alt', name: 'CSS', level: 95 },
+            { icon: 'fab fa-js', name: 'JavaScript', level: 95 },
+            { icon: 'fas fa-code', name: 'jQuery', level: 85 },
+            { icon: 'fab fa-node-js', name: 'Node.js', level: 85 },
+            { icon: 'fas fa-database', name: 'MySQL', level: 85 },
+            { icon: 'fab fa-java', name: 'Java', level: 80 },
+            { icon: 'fab fa-git-alt', name: 'Git / GitHub', level: 88 },
+        ];
+
+        const skillsGrid = document.querySelector('.skills-grid');
+        skillsData.forEach(skill => {
+            const skillEl = document.createElement('div');
+            skillEl.className = 'skill-card glassmorphic p-6 rounded-lg text-center';
+            skillEl.innerHTML = `
+                <i class="${skill.icon} text-5xl text-cyan-400 mb-4"></i>
+                <h3 class="text-xl font-bold mb-2">${skill.name}</h3>
+                <div class="w-full bg-gray-700 rounded-full h-2.5">
+                    <div class="bg-gradient-to-r from-cyan-400 to-blue-500 h-2.5 rounded-full progress-bar" style="width: 0%"></div>
+                </div>
+            `;
+            skillsGrid.appendChild(skillEl);
+        });
+
+        gsap.utils.toArray('.skill-card').forEach((card, i) => {
+            gsap.from(card, {
+                opacity: 0,
+                scale: 0.5,
+                duration: 0.5,
+                stagger: 0.1,
+                scrollTrigger: {
+                    trigger: ".skills-grid",
+                    start: "top 80%",
+                }
+            });
+        });
+
+        gsap.utils.toArray('.progress-bar').forEach(bar => {
+            gsap.to(bar, {
+                width: "100%",
+                duration: 2,
+                ease: "power2.out",
+                scrollTrigger: {
+                    trigger: bar,
+                    start: "top 90%"
+                }
+            });
+        });
+
+        // Experience Timeline
+        gsap.utils.toArray('.experience-item').forEach((item, index) => {
+            gsap.from(item, {
+                opacity: 0,
+                x: index % 2 === 0 ? -100 : 100,
+                duration: 1,
+                scrollTrigger: {
+                    trigger: item,
+                    start: "top 80%",
+                }
+            });
+        });
+
+        // Projects
+        gsap.from(".project-card", {
+            opacity: 0,
+            y: 100,
+            scale: 0.8,
+            duration: 0.8,
+            stagger: 0.2,
+            ease: "back.out(1.7)",
+            scrollTrigger: {
+                trigger: "#projects",
+                start: "top 70%"
+            }
+        });
+
+        // Contact Form
+        gsap.from(".contact-content", {
+            opacity: 0,
+            y: 100,
+            duration: 1,
+            scrollTrigger: {
+                trigger: "#contact",
+                start: "top 70%"
+            }
+        });
+
+        // Magnetic Button
+        const magneticBtn = document.querySelector('.magnetic-btn');
+        if (magneticBtn) {
+            magneticBtn.addEventListener('mousemove', function (e) {
+                const pos = this.getBoundingClientRect();
+                const x = e.clientX - pos.left - pos.width / 2;
+                const y = e.clientY - pos.top - pos.height / 2;
+
+                gsap.to(this, {
+                    x: x * 0.3,
+                    y: y * 0.6,
+                    duration: 0.7,
+                    ease: "power3.out"
+                });
+            });
+
+            magneticBtn.addEventListener('mouseleave', function (e) {
+                gsap.to(this, {
+                    x: 0,
+                    y: 0,
+                    duration: 0.7,
+                    ease: "elastic.out(1, 0.3)"
+                });
+            });
+        }
+
+        // Mobile Menu
+        const hamburgerBtn = document.getElementById('hamburger-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
+
+        const menuTimeline = gsap.timeline({ paused: true });
+        menuTimeline.to(mobileMenu, {
+            x: 0,
+            duration: 0.5,
+            ease: "power3.inOut"
+        });
+
+        hamburgerBtn.addEventListener('click', () => {
+            hamburgerBtn.classList.toggle('menu-open');
+            if (hamburgerBtn.classList.contains('menu-open')) {
+                menuTimeline.play();
+            } else {
+                menuTimeline.reverse();
+            }
+        });
+
+        mobileNavLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                hamburgerBtn.classList.remove('menu-open');
+                menuTimeline.reverse();
+            });
+        });
+
+        // Additional styles for project cards
+        const styleSheet = document.createElement("style");
+        styleSheet.type = "text/css";
+        styleSheet.innerText = `
+            .tag { background-color: rgba(0, 210, 255, 0.1); color: var(--primary); padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; }
+            .btn-link { color: var(--accent); font-weight: 500; transition: all 0.2s; }
+            .btn-link:hover { text-shadow: 0 0 5px var(--accent); }
+            .nav-link .underline-anim { position: absolute; bottom: -5px; left: 0; width: 100%; height: 2px; background-color: var(--accent); transform: scaleX(0); transition: transform 0.3s ease-in-out; transform-origin: right; }
+            .nav-link:hover .underline-anim { transform: scaleX(1); transform-origin: left; }
+        `;
+        document.head.appendChild(styleSheet);
+
+    </script>
+
+    
